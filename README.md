@@ -30,7 +30,7 @@ linject uses [premake](http://industriousone.com/premake) to build project files
 Contributing
 ------------
 
-Pull requests are welcome.
+Pull requests are welcome. Especially when it comes to multi-platform support, as some of the code is currently using VirtualAllocEx.
 
 Credits
 -------
