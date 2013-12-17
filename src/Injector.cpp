@@ -280,8 +280,6 @@ int Injector::StartInject(BString procName, BString dllName)
 
 	String::File::ExtractFilename(NiceDllName);
 
-	//Output::Msg("Attempting to inject %s into %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
-
 	if (Injector::IsModuleLoaded(PID, FixedPath))
 	{
 		Output::Warning("%s already has %s loaded\n", procName.c_str(), NiceDllName.c_str());
@@ -295,8 +293,10 @@ int Injector::StartInject(BString procName, BString dllName)
 
 	if (result)
 	{
+		DWORD* baseAddress = Injector::GetBaseAddress(PID, FixedPath);
+
 		Console::FGColorPush(Console::Green);
-		Output::Msg("%s successfully injected into %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
+		Output::Msg("%s successfully injected into %s [PID %d] (0x%0x)\n", NiceDllName.c_str(), procName.c_str(), PID, baseAddress);
 		Console::FGColorPop();
 	} else {
 		Output::Warning("%s failed to inject into %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
@@ -323,8 +323,6 @@ int Injector::StartEject(BString procName, BString dllName)
 	BString NiceDllName = dllName;
 
 	String::File::ExtractFilename(NiceDllName);
-
-	//Output::Msg("Attempting to eject %s from %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
 
 	if (!Injector::IsModuleLoaded(PID, FixedPath))
 	{
@@ -380,4 +378,40 @@ int Injector::DumpModules(DWORD PID)
 	CloseHandle(hProcess);
 
 	return 0;
+}
+
+DWORD* Injector::GetBaseAddress(DWORD PID, BString dllName)
+{
+	String::Lower(dllName);
+
+	LPSTR strModuleName = (char*)dllName.c_str();
+
+	MODULEENTRY32 lpme = { 0 };
+	int nModules = 0;
+	BOOL isMod = 0;
+	DWORD* baseAddress = 0;
+	char strModName[512];
+
+	strcpy(strModName, strModuleName);
+
+	HANDLE hSnapshotModule = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, PID);
+	if (hSnapshotModule)
+	{
+		lpme.dwSize = sizeof(lpme);
+		isMod = Module32First(hSnapshotModule, &lpme);
+
+		while (isMod)
+		{
+			if (strcmp(_strlwr(lpme.szExePath), strModName) == 0)
+			{
+				baseAddress = reinterpret_cast<DWORD*>(lpme.modBaseAddr);
+			}
+			nModules++;
+			isMod = Module32Next(hSnapshotModule, &lpme);
+		}
+	}
+
+	CloseHandle(hSnapshotModule);
+
+	return baseAddress;
 }
