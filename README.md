@@ -7,13 +7,18 @@ Usage
 -----
 
 Inject DLL Into Process
-	linject inject -process proc.exe -dll .\payload.dll
+```
+linject inject -process proc.exe -dll .\payload.dll
+```
 
 Eject DLL From Process
-	linject eject -process proc.exe -dll .\payload.dll
-
+```
+linject eject -process proc.exe -dll .\payload.dll
+```
 Dump Modules in use by Process
-	linject dump -process proc.exe
+```
+linject dump -process proc.exe
+```
 
 Building
 --------
