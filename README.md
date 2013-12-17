@@ -1,7 +1,7 @@
 Lightweight Injection Tool
 =======================
 
-Command-line DLL Injection and Ejection.
+A lightweight command-line DLL injection and ejection tool.
 
 Usage
 -----
