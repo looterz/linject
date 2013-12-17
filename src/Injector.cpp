@@ -280,7 +280,7 @@ int Injector::StartInject(BString procName, BString dllName)
 
 	String::File::ExtractFilename(NiceDllName);
 
-	Output::Msg("Attempting to inject %s into %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
+	//Output::Msg("Attempting to inject %s into %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
 
 	if (Injector::IsModuleLoaded(PID, FixedPath))
 	{
@@ -324,7 +324,7 @@ int Injector::StartEject(BString procName, BString dllName)
 
 	String::File::ExtractFilename(NiceDllName);
 
-	Output::Msg("Attempting to eject %s from %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
+	//Output::Msg("Attempting to eject %s from %s [PID %d]\n", NiceDllName.c_str(), procName.c_str(), PID);
 
 	if (!Injector::IsModuleLoaded(PID, FixedPath))
 	{
