@@ -96,6 +96,47 @@ int main( int argc, char* argv[] )
 			return 0;
 		}
 
+		if (strCommand == "start")
+		{
+			BString strProcess = CommandLine::GetSwitch("-process", "");
+
+			if (strProcess == "")
+			{
+				Output::Msg("Missing -process (the process to inject into)\n");
+				exit(1);
+			}
+
+			BString strDll = CommandLine::GetSwitch("-dll", "");
+
+			if (strDll == "")
+			{
+				Output::Msg("Missing -dll (the dll to inject)\n");
+				exit(1);
+			}
+
+			if (!File::Exists(strProcess))
+			{
+				Output::Warning("Could not locate %s\n", strProcess.c_str());
+				exit(1);
+			}
+
+			if (!File::Exists(strDll))
+			{
+				Output::Warning("Could not locate %s\n", strDll.c_str());
+				exit(1);
+			}
+
+			BString strDelay = CommandLine::GetSwitch("-delay", "");
+			DWORD delay = 5000;
+
+			if (strDelay != "")
+			{
+				delay = String::To::Int(strDelay);
+			}
+
+			return Injector::StartProcess(strProcess, strDll, delay);
+		}
+
         // Help
         Output::Msg( "Usage:\n\n" );
 
@@ -103,6 +144,8 @@ int main( int argc, char* argv[] )
 			"  linject inject -process proc.exe -dll .\\payload.dll\n\n"
 			"Eject DLL From Process:\n\n"
 			"  linject eject -process proc.exe -dll .\\payload.dll\n\n"
+			"Start Process and Inject DLL:\n\n"
+			"  linject start -process \"C:\\some\\proc.exe\" -dll .\\payload.dll -delay <optional miliseconds>\n\n"
 			"Dump Modules in use by Process:\n\n"
 			"  linject dump -process proc.exe\n";
 

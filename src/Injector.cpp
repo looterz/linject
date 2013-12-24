@@ -380,6 +380,74 @@ int Injector::DumpModules(DWORD PID)
 	return 0;
 }
 
+int Injector::StartProcess(BString procPath, BString dllName, DWORD delay)
+{
+	char RealPath[MAX_PATH] = { 0 };
+	GetFullPathName(dllName.c_str(), MAX_PATH, RealPath, NULL);
+
+	BString FixedPath = String::Format::Print(RealPath);
+
+	BString NiceDllName = dllName;
+	BString NiceProcName = procPath;
+
+	String::File::ExtractFilename(NiceDllName);
+	String::File::ExtractFilename(NiceProcName);
+
+	STARTUPINFOA startInfo;
+	PROCESS_INFORMATION procInfo;
+
+	ZeroMemory(&startInfo, sizeof(startInfo));
+	ZeroMemory(&procInfo, sizeof(procInfo));
+
+	startInfo.cb = sizeof(startInfo);
+
+	Output::Msg("starting %s\n", NiceProcName.c_str());
+
+	HANDLE hProcess = Process::Start(procPath, "", true);
+
+	if (hProcess == NULL)
+	{
+		Output::Warning("Failed to start process %s\n", NiceProcName.c_str());
+
+		return 0;
+	}
+
+	Output::Msg("%s started successfully\n", NiceProcName.c_str());
+
+	DWORD PID = Injector::GetProcess(NiceProcName);
+
+	if (PID == 0)
+	{
+		Output::Warning("Could not find PID of process %s\n", NiceProcName.c_str());
+
+		return 0;
+	}
+
+	DWORD NiceDelay = ((delay + 500) / 1000); // Miliseconds to seconds
+
+	Output::Msg("waiting %d seconds to inject into %s\n", NiceDelay, NiceProcName.c_str());
+
+	Sleep(delay); // Sleep for 5 seconds
+
+	Injector::Inject(PID, FixedPath);
+
+	bool result = Injector::IsModuleLoaded(PID, FixedPath);
+
+	if (result)
+	{
+		DWORD* baseAddress = Injector::GetBaseAddress(PID, FixedPath);
+
+		Console::FGColorPush(Console::Green);
+		Output::Msg("%s successfully injected into %s [PID %d] (0x%0x)\n", NiceDllName.c_str(), NiceProcName.c_str(), PID, baseAddress);
+		Console::FGColorPop();
+	}
+	else {
+		Output::Warning("%s failed to inject into %s [PID %d]\n", NiceDllName.c_str(), NiceProcName.c_str(), PID);
+	}
+
+	return result;
+}
+
 DWORD* Injector::GetBaseAddress(DWORD PID, BString dllName)
 {
 	String::Lower(dllName);

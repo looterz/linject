@@ -15,6 +15,12 @@ Eject DLL From Process
 ```
 linject eject -process proc.exe -dll .\payload.dll
 ```
+
+Start Process and Inject DLL
+```
+linject start -process "C:\some\proc.exe" -dll .\payload.dll -delay <optional miliseconds>
+```
+
 Dump Modules in use by Process
 ```
 linject dump -process proc.exe

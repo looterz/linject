@@ -31,6 +31,9 @@ namespace Injector
 	// Dump all DLLs in use by a target process
 	int DumpModules(DWORD PID);
 
+	// Start a process and inject into it automatically
+	int StartProcess(BString procPath, BString dllName, DWORD delay);
+
 	// Get a Modules BaseAddress
 	DWORD* GetBaseAddress(DWORD PID, BString dllName);
 }
