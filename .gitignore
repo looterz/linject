@@ -1,0 +1,7 @@
+bin
+build/windows
+build/linux
+build/osx
+build/premake4.exe
+lib/*
+include/Bootil
